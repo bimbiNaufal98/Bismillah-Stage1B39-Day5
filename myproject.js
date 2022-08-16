@@ -5,8 +5,8 @@ function submitData(event) {
     //event.preventDefault ini agar saat kita post blog, tidak me refresh lagi
 
     let projectName=document.getElementById("input-project-name").value
-    let startDate=document.getElementById("input-start-date").value
-    let endDate=document.getElementById("input-end-date").value
+    let startDate=new Date(document.getElementById("input-start-date").value)
+    let endDate=new Date(document.getElementById("input-end-date").value)
     let description=document.getElementById("input-description").value
     let technologiesJavascript=document.getElementById("input-technologies-js").checked
     let technologiesPhp=document.getElementById("input-technologies-php").checked
@@ -14,6 +14,7 @@ function submitData(event) {
     let technologiesNodejs=document.getElementById("input-technologies-node-js").checked
     let uploadImage=document.getElementById("input-image").files
     let peringatan="Semua kolom wajib diisi"
+    let resultDate=(endDate-startDate)
 
     if (projectName == "") {
         return alert(peringatan)        
@@ -48,6 +49,7 @@ function submitData(event) {
     
     let project = {
         projectName,
+        resultDate,
         postAt: new Date(),
         description,
         technologiesJavascript,
@@ -78,10 +80,10 @@ function renderBlog () {
                         <div style="width: 100%; height: 300px; overflow: hidden; position: relative;">
                             <img src="${myProject[index].uploadImage}" style="max-width: 100%; position: absolute;">
                         </div>
-                        <p id="input-project-name" style="margin-top: 10px; margin-left: 10px; margin-bottom: 5px; font-size: 35px; font-family: 'Segoe UI'; font-weight: bold;">${myProject[index].projectName}</p>
-                        <div class="author" style="margin-top: 2px; margin-left: 13px; margin-bottom: 5px; color: grey">Tayang posting : ${getFullTime(myProject[index].postAt)}</div>
-                        <div style="text-align: left; margin-top: 10px; margin-left: 15px;">
-                        <span style="font-size:12px; color: grey;">${getDistanceTime(myProject[index].postAt)}</span>
+                        <p id="input-project-name" style="margin-top: 10px; margin-left: 13px; margin-bottom: 5px; font-size: 35px; font-family: 'Segoe UI'; font-weight: bold;">${myProject[index].projectName}</p>
+                        <div style="margin-top: 2px; margin-left: 15px; margin-bottom: 0px; color: grey">Show Post: ${getFullTime(myProject[index].postAt)}</div>
+                        <div style="text-align: left; margin-top: 0px; margin-left: 15px;">
+                        <span style="font-size:12px; color: grey;">Duration : ${getDistanceTime(myProject[index].resultDate)}</span>
                         </div>
                         <p style="
                             margin-top: 25px; margin-left: 13px; margin-right: 50px; text-align: justify; font-size: 18px; font-family: 'Segoe UI';">
@@ -141,32 +143,40 @@ function getFullTime(time){
 
 function getDistanceTime(time){
 
-    let timeNow = new Date()
-    let timePost = time
+    let startDate= new Date(document.getElementById("input-start-date").value)
+    let endDate = new Date(document.getElementById("input-end-date").value)
 
-    let distance = timeNow - timePost
+    let distance = endDate - startDate
     console.log(distance);
 
     let milisecond = 1000 // 1 detik 1000 milisecond
     let secondInHours = 3600 // 1 jam sama dengan 3600 detik
     let hoursInDay = 24 // 1 hari 24 jam
+    let dayInMonth = 31 // 1 bulan 31 hari
+    let monthInYear = 12 // 1 tahun 12 bulan
 
+    let distanceYear = Math.floor(distance / (milisecond * secondInHours * hoursInDay * dayInMonth * monthInYear))
+    let distanceMonth = Math.floor(distance / (milisecond * secondInHours * hoursInDay * dayInMonth))
     let distanceDay = Math.floor(distance / (milisecond * secondInHours * hoursInDay))
     let distanceHours = Math.floor(distance / (milisecond * 60 * 60))
     let distanceMinutes = Math.floor(distance / (milisecond * 60))
     let distanceSeconds = Math.floor(distance / milisecond)
 
-    if(distanceDay > 0){
-        return `${distanceDay} day ago`
+    if(distanceYear > 0){
+        return `${distanceYear} Year`
+    } else if (distanceMonth > 0){
+        return `${distanceMonth} Month` 
+    } else if (distanceDay > 0) {
+        return `${distanceDay} Day`
     } else if(distanceHours > 0){
-        return `${distanceHours} hours ago`
+        return `${distanceHours} Hours`
     } else if(distanceMinutes > 0){
-        return `${distanceMinutes} minutes ago`
+        return `${distanceMinutes} Minutes`
     } else {
-        return `${distanceSeconds} seconds ago`
+        return `${distanceSeconds} Seconds`
     }
 }
 
-setInterval(function(){
-    renderBlog()
-}, 3000)
+// setInterval(function(){
+//     renderBlog()
+// }, 3000)
